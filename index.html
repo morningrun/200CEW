@@ -68,8 +68,7 @@ ATHLETE_ID = st.secrets["INTERVALS_ATHLETE_ID"]
 KST = ZoneInfo("Asia/Seoul")
 now = datetime.now(KST)
 
-# --- [추가] 크루원 목록 및 선택 스크롤 (selectbox) 설정 ---
-# 추후 크루원들의 스트라바/인터벌스 ID를 맵핑하여 확장할 수 있습니다.
+# 크루원 목록 및 선택 스크롤
 crew_members = ["이실권", "참가자A", "참가자B", "참가자C"] 
 
 # 상단 헤더 영역
@@ -78,15 +77,12 @@ st.markdown('<div class="crew-header"><div class="crew-title">200CREW</div></div
 # 크루원 선택 스크롤 (드롭다운)
 selected_member = st.selectbox("🏃‍♂️ 크루원 선택", crew_members, label_visibility="collapsed")
 
-# 선택된 크루원에 따른 데이터 로드 (현재는 기존 API_KEY/ATHLETE_ID 사용, 추후 크루원별 ID로 분기 가능)
 @st.cache_data(ttl=300)
 def fetch_data(a_id, key, start):
     url = f"https://intervals.icu/api/v1/athlete/{a_id}/activities?oldest={start}"
     res = requests.get(url, auth=("API_KEY", key))
     return res.json() if res.status_code == 200 else []
 
-# 만약 크루원별 ID 매핑이 필요하다면 여기서 athlete_id를 변경할 수 있습니다.
-# target_athlete_id = ATHLETE_ID if selected_member == "이실권" else "다른_크루원_ID"
 activities = fetch_data(ATHLETE_ID, API_KEY, f"{now.year - 2}-01-01")
 
 records = []
@@ -105,7 +101,6 @@ cur_day = now.day
 today_str = now.strftime("%Y-%m-%d")
 date_text = f"{now.year}.{now.month:02d}.{cur_day:02d} ({['월','화','수','목','금','토','일'][now.weekday()]})"
 
-# 선택된 크루원 이름과 날짜 표시
 st.markdown(f"<p style='font-size:0.9rem; font-weight:800; color:#0284C7; margin-bottom:10px;'>👤 조회 중인 크루원: {selected_member} &nbsp;|&nbsp; 🗓️ {date_text}</p>", unsafe_allow_html=True)
 
 cur_m_str = now.strftime("%Y-%m")
