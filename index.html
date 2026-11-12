@@ -64,18 +64,26 @@ div[data-testid="stExpander"] summary { font-weight: 900 !important; color: #0F1
 """, unsafe_allow_html=True)
 
 API_KEY = st.secrets["INTERVALS_API_KEY"]
-ATHLETE_ID = st.secrets["INTERVALS_ATHLETE_ID"]
 KST = ZoneInfo("Asia/Seoul")
 now = datetime.now(KST)
 
-# 크루원 목록 및 선택 스크롤
-crew_members = ["이실권", "참가자A", "참가자B", "참가자C"] 
+# --- [핵심] 크루원 이름별 Intervals.icu ID 맵핑 설정 ---
+# 본인 ID는 시크릿에서 가져오고, 다른 크루원들은 각자의 ID 문자열을 넣어주세요.
+CREW_ATHLETE_IDS = {
+    "이실권": st.secrets["INTERVALS_ATHLETE_ID"],
+    "참가자A": "다른크루원의_ATHLETE_ID_A", 
+    "참가자B": "다른크루원의_ATHLETE_ID_B",
+    "참가자C": "다른크루원의_ATHLETE_ID_C"
+}
 
 # 상단 헤더 영역
 st.markdown('<div class="crew-header"><div class="crew-title">200CREW</div></div>', unsafe_allow_html=True)
 
 # 크루원 선택 스크롤 (드롭다운)
-selected_member = st.selectbox("🏃‍♂️ 크루원 선택", crew_members, label_visibility="collapsed")
+selected_member = st.selectbox("🏃‍♂️ 크루원 선택", list(CREW_ATHLETE_IDS.keys()), label_visibility="collapsed")
+
+# 선택된 크루원의 고유 ID 가져오기
+current_athlete_id = CREW_ATHLETE_IDS[selected_member]
 
 @st.cache_data(ttl=300)
 def fetch_data(a_id, key, start):
@@ -83,7 +91,8 @@ def fetch_data(a_id, key, start):
     res = requests.get(url, auth=("API_KEY", key))
     return res.json() if res.status_code == 200 else []
 
-activities = fetch_data(ATHLETE_ID, API_KEY, f"{now.year - 2}-01-01")
+# 선택된 사람의 ID로 데이터를 가져옵니다!
+activities = fetch_data(current_athlete_id, API_KEY, f"{now.year - 2}-01-01")
 
 records = []
 if activities:
