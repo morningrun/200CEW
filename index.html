@@ -31,7 +31,6 @@ header { visibility: hidden; }
 .block-container { padding: 0.8rem !important; }
 .crew-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 0 4px; }
 .crew-title { font-size: 1.45rem !important; font-weight: 900; background: linear-gradient(135deg, #0F172A 0%, #0284C7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
-.crew-subtitle { font-size: 0.75rem; color: #64748B; font-weight: 600; background: #FFFFFF; border: 1px solid #E2E8F0; padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 5px; }
 .hero-card { background: linear-gradient(145deg, #1E293B 0%, #0F172A 100%); border-radius: 22px; padding: 20px 22px; color: #FFFFFF; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.25); margin-bottom: 16px; }
 .hero-top-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 12px; margin-bottom: 14px; }
 .hero-goal-title { font-size: 0.95rem; color: #94A3B8; font-weight: 700; }
@@ -67,8 +66,7 @@ API_KEY = st.secrets["INTERVALS_API_KEY"]
 KST = ZoneInfo("Asia/Seoul")
 now = datetime.now(KST)
 
-# --- [핵심] 크루원 이름별 Intervals.icu ID 맵핑 설정 ---
-# 본인 ID는 시크릿에서 가져오고, 다른 크루원들은 각자의 ID 문자열을 넣어주세요.
+# 크루원 이름별 Intervals.icu ID 맵핑 설정 (나중에 다른 크루원들의 ID를 추가하세요)
 CREW_ATHLETE_IDS = {
     "이실권": st.secrets["INTERVALS_ATHLETE_ID"],
     "참가자A": "다른크루원의_ATHLETE_ID_A", 
@@ -76,13 +74,9 @@ CREW_ATHLETE_IDS = {
     "참가자C": "다른크루원의_ATHLETE_ID_C"
 }
 
-# 상단 헤더 영역
 st.markdown('<div class="crew-header"><div class="crew-title">200CREW</div></div>', unsafe_allow_html=True)
 
-# 크루원 선택 스크롤 (드롭다운)
 selected_member = st.selectbox("🏃‍♂️ 크루원 선택", list(CREW_ATHLETE_IDS.keys()), label_visibility="collapsed")
-
-# 선택된 크루원의 고유 ID 가져오기
 current_athlete_id = CREW_ATHLETE_IDS[selected_member]
 
 @st.cache_data(ttl=300)
@@ -91,7 +85,6 @@ def fetch_data(a_id, key, start):
     res = requests.get(url, auth=("API_KEY", key))
     return res.json() if res.status_code == 200 else []
 
-# 선택된 사람의 ID로 데이터를 가져옵니다!
 activities = fetch_data(current_athlete_id, API_KEY, f"{now.year - 2}-01-01")
 
 records = []
